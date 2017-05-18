@@ -44,7 +44,7 @@ pipeline {
             }
         }
         stage('Input') {
-            agent{ none }
+            agent none
             steps {
                 input "Deploy?"
             }
