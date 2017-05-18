@@ -10,4 +10,4 @@ timestamps() {
             }
         }
     }
-}t
+}
