@@ -13,7 +13,9 @@ pipeline {
         stage('Build') {
             steps {
                 withEnv(["JAVA_HOME=${tool 'jdk8_oracle'}", "PATH+MAVEN=${tool 'maven35'}/bin:${env.JAVA_HOME}/bin"]) {
-                    sh 'mvn --version'
+                    sh 'mvn -B -V -U -e clean verify -Dsurefire.useFile=false'
+                    archiveArtifacts 'target/*.?ar'
+                    junit 'target/**/*.xml'  // Requires JUnit plugin
                 }
             }
         }
