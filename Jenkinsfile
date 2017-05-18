@@ -3,15 +3,16 @@ properties([
         pipelineTriggers([
                 pollSCM('H/5 * * * *'),
                 cron('@midnight')
-        ]),
-        parameters([string(defaultValue: 'Jenkins Techlab', description: 'Who to greet?', name: 'Greetings_to')])
+        ])
 ])
 
 timestamps() {
     timeout(time: 10, unit: 'MINUTES') {
-        node {
+        node(env.JOB_NAME.split('/')[0]) {
             stage('Greeting') {
-                echo 'Hello, ' + params.Greetings_to + '!'
+                withEnv(["JAVA_HOME=${tool 'jdk8_oracle'}", "PATH+MAVEN=${tool 'maven35'}/bin:${env.JAVA_HOME}/bin"]) {
+                    sh "mvn --version"
+                }
             }
         }
     }
