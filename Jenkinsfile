@@ -43,9 +43,14 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
+        stage('Input') {
+            agent{ none }
             steps {
                 input "Deploy?"
+            }
+        }
+        stage('Deploy') {
+            steps {
                 milestone(30)  // Abort all older builds that didn't get here
                 withEnv(["JAVA_HOME=${tool 'jdk8_oracle'}", "PATH+MAVEN=${tool 'maven35'}/bin:${env.JAVA_HOME}/bin"]) {
                     sh "mvn -s '${M2_SETTINGS}' -B deploy:deploy-file -DrepositoryId='puzzle-releases' -Durl='${REPO_URL}' -DgroupId='com.puzzleitc.jenkins-techlab' -DartifactId='${ARTIFACT}' -Dversion='1.0' -Dpackaging='jar' -Dfile=`echo target/*.jar`"
