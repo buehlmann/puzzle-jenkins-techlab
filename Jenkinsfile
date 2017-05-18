@@ -1,7 +1,7 @@
 @Library('puzzle-jenkins-techlab-libraries') _
 
 pipeline {
-    agent { label env.JOB_NAME.split('/')[0] }
+    agent none
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
         timeout(time: 10, unit: 'MINUTES')
@@ -19,6 +19,7 @@ pipeline {
     }
     stages {
         stage('Build') {
+            agent { label env.JOB_NAME.split('/')[0] }
             steps {
                 milestone(10)  // The first milestone step starts tracking concurrent build order
                 withEnv(["JAVA_HOME=${tool 'jdk8_oracle'}", "PATH+MAVEN=${tool 'maven35'}/bin:${env.JAVA_HOME}/bin"]) {
@@ -27,6 +28,7 @@ pipeline {
             }
         }
         stage('Test') {
+            agent { label env.JOB_NAME.split('/')[0] }
             steps {
                 // Only one build is allowed to use test resources, newest builds run first
                 lock(resource: 'myResource', inversePrecedence: true) {  // Lockable Resources Plugin
@@ -44,12 +46,12 @@ pipeline {
             }
         }
         stage('Input') {
-            agent none
             steps {
                 input "Deploy?"
             }
         }
         stage('Deploy') {
+            agent { label env.JOB_NAME.split('/')[0] }
             steps {
                 milestone(30)  // Abort all older builds that didn't get here
                 withEnv(["JAVA_HOME=${tool 'jdk8_oracle'}", "PATH+MAVEN=${tool 'maven35'}/bin:${env.JAVA_HOME}/bin"]) {
