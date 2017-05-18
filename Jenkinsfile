@@ -1,9 +1,12 @@
 pipeline {
     agent any
     stages {
-        stage('Greeting') {
+        stage('script') {
             steps {
-                echo 'Hello, World!'
+                script {
+                    def pipelineType = 'declarative'
+                    echo "yeah we executed a script within the ${pipelineType} pipeline"
+                }
             }
         }
     }
