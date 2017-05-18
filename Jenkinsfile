@@ -1,5 +1,5 @@
 pipeline {
-    agent any
+    agent bbuehlmann
     options {
         buildDiscarder(logRotator(numToKeepStr: '5'))
         timeout(time: 10, unit: 'MINUTES')
