@@ -1,3 +1,5 @@
+@Library('puzzle-jenkins-techlab-libraries') _
+
 pipeline {
     agent { label env.JOB_NAME.split('/')[0] }
     options {
@@ -13,6 +15,7 @@ pipeline {
         stage('Build') {
             steps {
                 withEnv(["JAVA_HOME=${tool 'jdk8_oracle'}", "PATH+MAVEN=${tool 'maven35'}/bin:${env.JAVA_HOME}/bin"]) {
+                    checkout scm
                     sh 'mvn -B -V -U -e clean verify -Dsurefire.useFile=false'
                     archiveArtifacts 'target/*.?ar'
                 }
@@ -25,17 +28,8 @@ pipeline {
         }
     }
     post {
-        success {
-            mail body: "Build success - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", subject: 'Build success', to: 'buehlmann@puzzle.ch'
-            rocketSend avatar: 'https://chat.puzzle.ch/emoji-custom/success.png', channel: 'jenkins-techlab', message: "Build success - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", rawMessage: true
-        }
-        unstable {
-            mail body: "Build unstable - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", subject: 'Build unstable', to: 'buehlmann@puzzle.ch'
-            rocketSend avatar: 'https://chat.puzzle.ch/emoji-custom/unstable.png', channel: 'jenkins-techlab', message: "Build unstable - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", rawMessage: true
-        }
-        failure {
-            mail body: "Build failure - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", subject: 'Build failed', to: 'buehlmann@puzzle.ch'
-            rocketSend avatar: 'https://chat.puzzle.ch/emoji-custom/failure.png', channel: 'jenkins-techlab', message: "Build failure - ${env.JOB_NAME} ${env.BUILD_NUMBER} (<${env.BUILD_URL}|Open>)", rawMessage: true
+        always {
+            notifyPuzzleChat('jenkins-techlab')
         }
     }
 }
